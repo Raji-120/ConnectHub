@@ -85,6 +85,18 @@ app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+// Serve Frontend in Production (Unified deployment)
+const frontendDist = path.join(__dirname, '../frontend/dist');
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
+
 // Error Handling Middlewares
 app.use(notFound);
 app.use(errorHandler);
